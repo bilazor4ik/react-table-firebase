@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Form, Container, Row, Button } from 'react-bootstrap';
+import { Form, Container, Row, Button, Table } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import firebase from '../util/firebase';
 
@@ -12,7 +12,8 @@ class AddDeliveryForm extends Component {
       dateOrdered: '',
       deliveryVendor: '',
       ticketNumber: '',
-      eta: ''
+      eta: '',
+      deliveires:[]
     }
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this); 
@@ -26,8 +27,6 @@ class AddDeliveryForm extends Component {
   }
 
   //submit to database state
-
-
   handleSubmit(e) {
     e.preventDefault();
     const deliveriesRef = firebase.database().ref('deliveries');
@@ -45,11 +44,69 @@ class AddDeliveryForm extends Component {
       eta:''
     });
   }
+// Read Data from database
+  componentDidMount() {
+    const deliveiresRef = firebase.database().ref('deliveries');
+    deliveiresRef.on('value', (snapshot) => {
+      let deliveires = snapshot.val();
+      let newState = [];
+      for (let item in deliveires) {
+        newState.push({
+          dateOrdered: deliveires[item].dateOrdered,
+          deliveryVendor: deliveires[item].deliveryVendor,
+          ticketNumber: deliveires[item].ticketNumber,
+          eta: deliveires[item].eta
+        });
+      }
+      this.setState({
+        deliveires: newState
+      });
+    });
+  }
+
 
   render() {
     return (
       <Container>
         <Row>
+        <Table striped bordered hover>
+  <thead>
+    <tr>
+    
+      <th>Date Ordered</th>
+      <th>Delivery Vendor</th>
+      <th>CW Ticket Number</th>
+      <th>ETA</th>
+
+    </tr>
+  </thead>
+  <tbody>
+  
+    
+      {this.state.deliveires.map((item) => {
+        return (
+          <tr>
+          <td>{item.dateOrdered}</td>
+          <td>{item.deliveryVendor}</td>
+          <td>{item.ticketNumber}</td>
+          <td>{item.eta}</td>
+
+          </tr>
+        )
+      })}
+    
+   
+    
+  </tbody>
+</Table>
+       
+   
+  
+    
+
+
+
+
           <Form onSubmit={this.handleSubmit}>
             <Form.Group className="mb-3" controlId="dateOrdered">
               <Form.Label>Date Ordered</Form.Label>
