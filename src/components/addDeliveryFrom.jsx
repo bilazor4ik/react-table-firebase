@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { Form, Container, Row, Button } from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import firebase from '../util/firebase';
 
 
 class AddDeliveryForm extends Component {
@@ -14,6 +15,7 @@ class AddDeliveryForm extends Component {
       eta: ''
     }
     this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this); 
   }
 
   // Recieve event from inputs
@@ -23,11 +25,32 @@ class AddDeliveryForm extends Component {
     });
   }
 
+  //submit to database state
+
+
+  handleSubmit(e) {
+    e.preventDefault();
+    const deliveriesRef = firebase.database().ref('deliveries');
+    const delivery = {
+      dateOrdered: this.state.dateOrdered,
+      deliveryVendor: this.state.deliveryVendor,
+      ticketNumber: this.state.ticketNumber,
+      eta: this.state.eta
+    }
+    deliveriesRef.push(delivery);
+    this.setState({
+      dateOrdered: '',
+      deliveryVendor: '',
+      ticketNumber: '',
+      eta:''
+    });
+  }
+
   render() {
     return (
       <Container>
         <Row>
-          <Form>
+          <Form onSubmit={this.handleSubmit}>
             <Form.Group className="mb-3" controlId="dateOrdered">
               <Form.Label>Date Ordered</Form.Label>
               <Form.Control type="date" name="dateOrdered" onChange={this.handleChange} value={this.state.dateOrdered} />
