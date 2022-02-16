@@ -13,10 +13,10 @@ class AddDeliveryForm extends Component {
       deliveryVendor: '',
       ticketNumber: '',
       eta: '',
-      deliveires:[]
+      deliveires: []
     }
     this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this); 
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   // Recieve event from inputs
@@ -41,10 +41,10 @@ class AddDeliveryForm extends Component {
       dateOrdered: '',
       deliveryVendor: '',
       ticketNumber: '',
-      eta:''
+      eta: ''
     });
   }
-// Read Data from database
+  // Read Data from database
   componentDidMount() {
     const deliveiresRef = firebase.database().ref('deliveries');
     deliveiresRef.on('value', (snapshot) => {
@@ -52,6 +52,7 @@ class AddDeliveryForm extends Component {
       let newState = [];
       for (let item in deliveires) {
         newState.push({
+          id: item,
           dateOrdered: deliveires[item].dateOrdered,
           deliveryVendor: deliveires[item].deliveryVendor,
           ticketNumber: deliveires[item].ticketNumber,
@@ -64,45 +65,53 @@ class AddDeliveryForm extends Component {
     });
   }
 
+  //deleteing items from database
+  removeItem(itemId) {
+    const itemRef = firebase.database().ref(`/deliveries/${itemId}`);
+    itemRef.remove();
+  }
 
   render() {
     return (
       <Container>
         <Row>
-        <Table striped bordered hover>
-  <thead>
-    <tr>
-    
-      <th>Date Ordered</th>
-      <th>Delivery Vendor</th>
-      <th>CW Ticket Number</th>
-      <th>ETA</th>
+          <Table striped bordered hover>
+            <thead>
+              <tr>
 
-    </tr>
-  </thead>
-  <tbody>
-  
-    
-      {this.state.deliveires.map((item) => {
-        return (
-          <tr>
-          <td>{item.dateOrdered}</td>
-          <td>{item.deliveryVendor}</td>
-          <td>{item.ticketNumber}</td>
-          <td>{item.eta}</td>
+                <th>Date Ordered</th>
+                <th>Delivery Vendor</th>
+                <th>CW Ticket Number</th>
+                <th>ETA</th>
 
-          </tr>
-        )
-      })}
-    
-   
-    
-  </tbody>
-</Table>
-       
-   
-  
-    
+              </tr>
+            </thead>
+            <tbody>
+
+
+              {this.state.deliveires.map((item) => {
+                return (
+
+                  <tr key={item.id}>
+                    <td>{item.dateOrdered}</td>
+                    <td>{item.deliveryVendor}</td>
+                    <td>{item.ticketNumber}</td>
+                    <td>{item.eta}</td>
+                    <td> <button onClick={() => this.removeItem(item.id)}>Remove Item</button></td>
+                  </tr>
+
+
+                )
+              })}
+
+
+
+            </tbody>
+          </Table>
+
+
+
+
 
 
 
@@ -114,7 +123,7 @@ class AddDeliveryForm extends Component {
             </Form.Group>
             <Form.Group className="mb-3" controlId="deliveryVendor">
               <Form.Label>Delivery Vendor</Form.Label>
-              <Form.Select name='deliveryVendor'  onChange={this.handleChange} value={this.state.deliveryVendor}>
+              <Form.Select name='deliveryVendor' onChange={this.handleChange} value={this.state.deliveryVendor}>
                 <option>Select Delivery Vendor</option>
                 <option value="Amazon">Amazon</option>
                 <option value="FedEx">FedEx</option>
